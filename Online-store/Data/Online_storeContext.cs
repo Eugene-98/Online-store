@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Online_store.Models;
 
@@ -15,8 +16,17 @@ namespace Online_store.Data
         {
         }
 
-        public DbSet<Online_store.Models.ItemModel> ItemModel { get; set; }
+        public DbSet<ItemModel> ItemModel { get; set; }
 
-        public DbSet<Online_store.Models.UserModel> UserModel { get; set; }
+        
+    }
+
+    public class UserContext : IdentityDbContext
+    {
+	    public UserContext(DbContextOptions<UserContext> options)
+		    : base(options)
+	    {
+        }
+        public DbSet<UserModel> UserModel { get; set; }
     }
 }
