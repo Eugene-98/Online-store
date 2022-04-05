@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using NUnit.Framework.Internal;
 using Online_store.Models;
 using System.Diagnostics;
 
@@ -21,6 +22,12 @@ namespace Online_store.Controllers
 		public IActionResult Privacy()
 		{
 			return View();
+		}
+
+		[HttpGet]
+		public IActionResult GoToStore()
+		{
+			return Redirect("ItemModels/Index");
 		}
 
 		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
