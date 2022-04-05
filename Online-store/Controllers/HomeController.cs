@@ -27,7 +27,7 @@ namespace Online_store.Controllers
 		[HttpGet]
 		public IActionResult GoToStore()
 		{
-			return Redirect("ItemModels/Index");
+			return Redirect("~/ItemModels/Index");
 		}
 
 		[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
