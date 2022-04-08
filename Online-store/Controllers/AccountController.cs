@@ -1,19 +1,23 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Online_store.Data;
 using Online_store.Models;
 using Online_store.ViewModel;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Online_store.Controllers
 {
 	public class AccountController : Controller
 	{
-		public readonly UserManager<UserModel> _userManager;
-		public readonly SignInManager<UserModel> _signInManager;
+		private readonly StoreContext _context;
+		private int NextId = 10;
 
-		public AccountController(UserManager<UserModel> userManager, SignInManager<UserModel> signInManager)
+		public AccountController(StoreContext context)
 		{
-			_userManager = userManager;
-			_signInManager = signInManager;
+			_context = context;
 		}
 
 		[HttpGet]
@@ -23,31 +27,74 @@ namespace Online_store.Controllers
 		}
 
 		[HttpPost]
+		[ValidateAntiForgeryToken]
 		public async Task<IActionResult> Register(RegisterViewModel model)
 		{
 			if (ModelState.IsValid)
 			{
-				UserModel user = new UserModel
+				UserModel user = await _context.Users.FirstOrDefaultAsync(u => u.Name == model.Username);
+				if (user == null)
 				{
-					UserName = model.Username
-				};
+					_context.Users.Add(new UserModel {Name = model.Username, Password = model.Password, Id = NextId});
+					await _context.SaveChangesAsync();
+					NextId++;
 
-				var result = await _userManager.CreateAsync(user, model.Password);
-				if (result.Succeeded)
-				{
-					await _signInManager.SignInAsync(user, false);
+					await Authenticate(model.Username);
+
 					return RedirectToAction("Index", "Home");
 				}
 				else
 				{
-					foreach (var error in result.Errors)
-					{
-						ModelState.AddModelError(string.Empty, error.Description);
-					}
+					ModelState.AddModelError("", "Invalid login or password");
 				}
 			}
 
 			return View(model);
+		}
+
+		
+
+		[HttpGet]
+		public IActionResult Login()
+		{
+			return View();
+		}
+
+		[HttpPost]
+		[ValidateAntiForgeryToken]
+		public async Task<IActionResult> Login(LoginViewModel model)
+		{
+			if (ModelState.IsValid)
+			{
+				UserModel user =
+					await _context.Users.FirstOrDefaultAsync(u => u.Name == model.Username && u.Password == model.Password);
+				if (user != null)
+				{
+					await Authenticate(model.Username);
+
+					return RedirectToAction("Index", "Home");
+				}
+				ModelState.AddModelError("", "Invalid username or password");
+			}
+
+			return View(model);
+		}
+		private async Task Authenticate(string username)
+		{
+			var claims = new List<Claim>
+			{
+				new Claim(ClaimsIdentity.DefaultNameClaimType, username)
+			};
+
+			ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
+
+			await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+		}
+
+		public async Task<IActionResult> Logout()
+		{
+			await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+			return RedirectToAction("Login", "Account");
 		}
 	}
 }

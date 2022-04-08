@@ -1,12 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Online_store.Models
 {
 	[Table("users")]
-	public class UserModel : IdentityUser
-
+	public class UserModel
 	{
 	public int Id { get; set; }
 
@@ -15,7 +13,6 @@ namespace Online_store.Models
 
 	[DataType(DataType.Password)]
 	public string Password { get; set; }
-	[NotMapped] public List<ItemModel> Сart { get; set; }
 
 	}
 }

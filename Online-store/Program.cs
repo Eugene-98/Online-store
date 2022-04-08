@@ -1,22 +1,19 @@
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Online_store.Data;
-using Online_store.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<Online_storeContext>(optionsI =>
-    optionsI.UseSqlServer(builder.Configuration.GetConnectionString("Online_storeContext")));
-builder.Services.AddDbContext<UserContext>(options =>
-	options.UseSqlServer(builder.Configuration.GetConnectionString("Online_storeContext")));
+builder.Services.AddDbContext<StoreContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Online_storeContext")));
+
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddIdentity<UserModel, IdentityRole>()
-	.AddEntityFrameworkStores<UserContext>()
-	.AddDefaultTokenProviders();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+	.AddCookie(options => options.LoginPath = "/login");
 
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 

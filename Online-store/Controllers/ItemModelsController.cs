@@ -13,9 +13,9 @@ namespace Online_store.Controllers
 {
     public class ItemModelsController : Controller
     {
-        private readonly Online_storeContext _context;
+        private readonly StoreContext _context;
 
-        public ItemModelsController(Online_storeContext context)
+        public ItemModelsController(StoreContext context)
         {
             _context = context;
         }
@@ -23,7 +23,7 @@ namespace Online_store.Controllers
         // GET: ItemModels
         public async Task<IActionResult> Index()
         {
-            return View(await _context.ItemModel.ToListAsync());
+            return View(await _context.Items.ToListAsync());
         }
 
         // GET: ItemModels/Details/5
@@ -34,7 +34,7 @@ namespace Online_store.Controllers
                 return NotFound();
             }
 
-            var itemModel = await _context.ItemModel
+            var itemModel = await _context.Items
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (itemModel == null)
             {
@@ -74,7 +74,7 @@ namespace Online_store.Controllers
                 return NotFound();
             }
 
-            var itemModel = await _context.ItemModel.FindAsync(id);
+            var itemModel = await _context.Items.FindAsync(id);
             if (itemModel == null)
             {
                 return NotFound();
@@ -125,7 +125,7 @@ namespace Online_store.Controllers
                 return NotFound();
             }
 
-            var itemModel = await _context.ItemModel
+            var itemModel = await _context.Items
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (itemModel == null)
             {
@@ -140,15 +140,15 @@ namespace Online_store.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var itemModel = await _context.ItemModel.FindAsync(id);
-            _context.ItemModel.Remove(itemModel);
+            var itemModel = await _context.Items.FindAsync(id);
+            _context.Items.Remove(itemModel);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ItemModelExists(int id)
         {
-            return _context.ItemModel.Any(e => e.Id == id);
+            return _context.Items.Any(e => e.Id == id);
         }
     }
 }

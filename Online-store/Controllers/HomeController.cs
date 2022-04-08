@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework.Internal;
 using Online_store.Models;
 using System.Diagnostics;
@@ -14,9 +15,10 @@ namespace Online_store.Controllers
 			_logger = logger;
 		}
 
+		[Authorize]
 		public IActionResult Index()
 		{
-			return View();
+			return Content(User.Identity.Name);
 		}
 
 		public IActionResult Privacy()
